@@ -1,61 +1,37 @@
 package com.weng.openapibackend.model.dto.interfaceinfo;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
-
-import java.io.Serializable;
-import java.util.Date;
 
 /**
- * 创建请求
- *
- * @TableName product
+ * 创建请求 record类
+ * - 默认包含了private final成员和包含所有成员的构造函数，get、hashcode、equals、toString方法
+ * - 不能再在里面写成员变量，可以使用注解，写方法等
  */
-@Data
-public class InterfaceInfoAddRequest implements Serializable {
+//规定前端要传的参数，方便前端同学开发。同时规避用户传入不合法的参数（如果用InterfaceInfo来接的话，用户可以传入不合法的参数）
+public record InterfaceInfoAddRequest(
+        @NotBlank(message = "接口名称不能为空")//不能删除@NotBlank，因为@Size无法判断空字符串
+        @Size(max = 50)
+        String name,
 
-    /**
-     * 接口名称
-     */
-    @NotBlank
-    @Size(max = 50)
-    private String name;
+        @NotBlank(message = "接口地址不能为空")
+        @Size(max = 200)
+        String url,
 
-    /**
-     * 接口url地址
-     */
-    @NotBlank
-    private String url;
+        @Size(max = 200)//可以不传，但传了就要满足要求
+        String description,
 
-    /**
-     * 接口描述
-     */
-    private String description;
-
-    /**
-     * 请求类型
-     */
-    @NotBlank
-    private String method;
-
-    /**
-     * 请求头
-     */
-    private String requestHeader;
-
-    /**
-     * 响应头
-     */
-    private String responseHeader;
-
-
-    @TableField(exist = false)
-    private static final long serialVersionUID = 1L;
-
+        @NotBlank(message = "接口请求类型不能为空")
+        @Size(max = 10)
+        String method,
+        @Size(max = 500)
+        String requestHeader,
+        @Size(max = 500)
+        String responseHeader
+) {
 }
+
+
+
+

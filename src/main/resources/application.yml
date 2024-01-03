@@ -1,7 +1,7 @@
 server:
   port: 8080
-  servlet:
-    context-path: /api
+#  servlet:
+#    context-path: /api
 
 spring:
   application:
@@ -17,10 +17,11 @@ spring:
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true #mybatis-plus自动打开驼峰映射，mybatis则自动关闭
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
   global-config:
     db-config:
       id-type: auto
-      logic-delete-field: isDelete
+      logic-delete-field: deleted
       logic-delete-value: 1 #被删除
       logic-not-delete-value: 0 #正常
 # 日志配置
@@ -28,10 +29,18 @@ logging:
   level:
     com:
       weng:
-        springbootinit:
+        openapibackend:
           mapper: debug
           service: debug
           controller: debug
+# jwt配置
+application:
+  security:
+    jwt:
+      secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970 #secert不能少于256bit，也就是32位字符
+      expiration: 86400000 # a day
+      refresh-token:
+        expiration: 604800000 # 7 days
 # springdoc-openapi项目配置
 springdoc:
   swagger-ui:

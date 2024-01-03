@@ -6,8 +6,9 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.io.Serial;
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * 接口信息表
@@ -53,30 +54,31 @@ public class InterfaceInfo implements Serializable {
     private String responseHeader;
 
     /**
-     * 接口状态（0-默认关闭，1-开启）
-     */
-    private Integer status;
-
-    /**
      * 创建人
      */
     private Long userId;
 
     /**
+     * 接口状态（0-默认关闭，1-开启）
+     */
+    private Integer status;
+
+    /**
      * 创建时间
      */
-    private Date createTime;
+    private LocalDateTime createTime;
 
     /**
      * 更新时间
      */
-    private Date updateTime;
+    private LocalDateTime updateTime;
 
     /**
      * 逻辑删除（0-正常，1-删除）
      */
-    private Integer isDelete;
+    private Integer deleted;
 
+    @Serial
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }

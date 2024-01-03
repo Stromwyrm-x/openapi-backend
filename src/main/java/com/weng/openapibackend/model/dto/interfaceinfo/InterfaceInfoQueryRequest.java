@@ -1,13 +1,11 @@
 package com.weng.openapibackend.model.dto.interfaceinfo;
 
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.weng.openapibackend.common.PageRequest;
+import com.weng.openapibackend.model.dto.page.PageRequest;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * 查询请求
@@ -15,7 +13,7 @@ import java.util.Date;
  * @author yupi
  */
 @Data
-public class InterfaceInfoQueryRequest extends PageRequest implements Serializable {
+public class InterfaceInfoQueryRequest extends PageRequest {
 
     /**
      * 主键
@@ -62,6 +60,4 @@ public class InterfaceInfoQueryRequest extends PageRequest implements Serializab
      */
     private Long userId;
 
-    @TableField(exist = false)
-    private static final long serialVersionUID = 1L;
 }
