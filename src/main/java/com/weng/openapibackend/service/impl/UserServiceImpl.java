@@ -10,14 +10,20 @@ import com.weng.openapibackend.model.dto.auth.RegisterRequest;
 import com.weng.openapibackend.model.entity.User;
 import com.weng.openapibackend.service.UserService;
 import com.weng.openapibackend.utils.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
+
+import static org.springframework.security.web.context.HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY;
 
 /**
 * @author weng
@@ -36,7 +42,33 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     private final PasswordEncoder passwordEncoder;
 
+    /**
+     * session登录
+     * @param loginRequest
+     * @param request
+     * @return
+     */
+    @Override
+    public User login(LoginRequest loginRequest, HttpServletRequest request)
+    {
+        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken
+                = new UsernamePasswordAuthenticationToken(loginRequest.username(), loginRequest.password());
+        Authentication authenticationResponse = authenticationManager.authenticate(usernamePasswordAuthenticationToken);
+        User user = (User) authenticationResponse.getPrincipal();
 
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        securityContext.setAuthentication(authenticationResponse);
+        HttpSession session = request.getSession(true);
+        session.setAttribute(SPRING_SECURITY_CONTEXT_KEY, securityContext);
+
+        return user;
+    }
+
+    /**
+     * jwt登录
+     * @param loginRequest
+     * @return
+     */
     @Override
     public String login(LoginRequest loginRequest)
     {
@@ -44,6 +76,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 = new UsernamePasswordAuthenticationToken(loginRequest.username(), loginRequest.password());
         Authentication authenticationResponse = authenticationManager.authenticate(usernamePasswordAuthenticationToken);
         User user = (User) authenticationResponse.getPrincipal();
+
         return jwtUtil.generateToken(user);
     }
 
@@ -66,7 +99,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         //3.存储到数据库
         User user = User.builder()
                 .username(registerRequest.username())
-                .password(passwordEncoder.encode(registerRequest.password()))//todo role为null，是否会插入到数据库中
+                .password(passwordEncoder.encode(registerRequest.password()))
+                //role为null，不插入到数据库中，因为是动态sql。判断如果为null，就不会执行这个字段的插入
                 .role(registerRequest.role()==null?null:registerRequest.role().name())//这里的role是枚举类型，name()方法返回枚举常量的名称
                 .build();
         userMapper.insert(user);//如果插入失败，它会抛出异常.而不是返回一个负数

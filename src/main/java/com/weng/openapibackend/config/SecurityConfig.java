@@ -23,6 +23,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -50,12 +56,15 @@ public class SecurityConfig
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception
     {
         return httpSecurity.csrf(AbstractHttpConfigurer::disable)
+                .cors(httpSecurityCorsConfigurer ->
+                        httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(authorizeRequests ->
-                authorizeRequests.requestMatchers("/auth/login","/auth/register",
+                authorizeRequests.requestMatchers("/**",
+                                //无需加上api前缀.The pattern must not contain the context path
                                 "/doc.html","/webjars/**","/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(sessionManagement -> sessionManagement
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                        .sessionCreationPolicy(SessionCreationPolicy.ALWAYS))
                 //默认是IF_REQUIRED,即如果需要就创建一个session。
                 //这里改为STATELESS，不创建session。因为每次请求携带的jwt信息包含了用户信息
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
@@ -84,4 +93,15 @@ public class SecurityConfig
         return new BCryptPasswordEncoder();
     }
 
+    public CorsConfigurationSource corsConfigurationSource()
+    {
+        CorsConfiguration corsConfiguration=new CorsConfiguration();
+        corsConfiguration.setAllowedMethods(List.of("*"));
+        corsConfiguration.setAllowedHeaders(List.of("*"));
+        corsConfiguration.setAllowedOrigins(List.of("*"));
+
+        UrlBasedCorsConfigurationSource source=new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**",corsConfiguration);
+        return source;
+    }
 }
