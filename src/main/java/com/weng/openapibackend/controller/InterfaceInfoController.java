@@ -25,7 +25,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("/interfaceInfos")
+@RequestMapping("/interfaceInfo")
 @Slf4j
 @Validated
 @RequiredArgsConstructor

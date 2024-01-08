@@ -16,5 +16,14 @@ class LoginRequestTest
         ObjectOutputStream objectOutputStream=new ObjectOutputStream(System.out);
         objectOutputStream.writeObject(loginRequest);
     }
+    @Test
+    public void testString()
+    {
+        String fuck = """
+                "
+               \"""";
+        System.out.println(fuck.isEmpty());
+        System.out.println(fuck);
+    }
 
 }

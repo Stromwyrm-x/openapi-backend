@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -26,13 +27,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException
     {
-        final String authHeader = request.getHeader("Authorization");
-        if (authHeader == null ||!authHeader.startsWith("Bearer "))
+        String token = getJwtFromRequest(request);
+        if (token.isEmpty())
         {
             filterChain.doFilter(request, response);
             return;
         }
-        final String token=authHeader.substring(7);
         String username = jwtUtil.extractUsername(token);//解析的时候会自动判断是否过期
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null)
         {
@@ -49,5 +49,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter
             SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
         }
         filterChain.doFilter(request, response);
+    }
+
+    private String getJwtFromRequest(HttpServletRequest request) {
+
+        String bearerToken = request.getHeader("Authorization");
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        return "";
     }
 }
